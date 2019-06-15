@@ -59,7 +59,8 @@ function countCourses(words) {
 
 function calculateNumberOfGoodWords(reviewAsArrayOfWords) {
     const words = ['fajny', 'fajne', 'zadowolony', 'zadowolona', 'polecam', 'godny', 'polecenia', 'śmiga', 'sprawnie', 'sprawny', 'szybko', 'super', 'świetny'];
-    return words.map(word => countWords(reviewAsArrayOfWords, word))
+    const map = words.map(word => countWords(reviewAsArrayOfWords, word));
+    return map
         .reduce((a, b) => a + b, 0);
 }
 
@@ -94,6 +95,23 @@ function mapToVowpalWabbitFormat(reviews) {
     return result;
 }
 
+function generateVWTextFormatData(vowpalData, dateInMillis) {
+    // {
+    //     _label,
+    //         length,
+    //         n_good,
+    //         n_bad
+    // }
+
+    const path = `./results/results-${dateInMillis}-vw.txt`;
+    fs.writeFile(path, '', 'utf8', () => {});
+    vowpalData.forEach(e => {
+        const text = `${e._label} | length:${e.length} n_good:${e.n_good} n_bad:${e.n_bad}\n`;
+        fs.appendFile(path, text, 'utf8', () => {});
+    })
+
+}
+
 async function start() {
     const productIds = [76403130,79218935, 81159668, 77226192, 79168976, 76367954, 77166127, 59663123, 60009559, 76367847, 76368072, 80689957, 76403130, 68821855, 55424288, 47044601, 55424279, 66604593, 47223332];
     const reviews = await fetchProducts(productIds);
@@ -107,6 +125,8 @@ async function start() {
     const reviewsInVowpalWabbitFormatAsJson = JSON.stringify(reviewsInVowpalWabbitFormat, null, 4);
     const vowpalWabbitDataPath = `./results/results-${currentTimeMillis}-vowpal-wabbit.json`;
     fs.writeFile(vowpalWabbitDataPath, reviewsInVowpalWabbitFormatAsJson, 'utf8', () => {});
+
+    generateVWTextFormatData(reviewsInVowpalWabbitFormat, currentTimeMillis);
 
     console.log(`* Pobrano ${reviews.length} opini z ${productIds.length} produktow. Zostaly one zapisane w pliku '${rawDataPath}' oraz '${vowpalWabbitDataPath}'`);
 }
