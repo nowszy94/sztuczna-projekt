@@ -96,18 +96,17 @@ function mapToVowpalWabbitFormat(reviews) {
 }
 
 function generateVWTextFormatData(vowpalData, dateInMillis) {
-    // {
-    //     _label,
-    //         length,
-    //         n_good,
-    //         n_bad
-    // }
-
-    const path = `./results/results-${dateInMillis}-vw.txt`;
-    fs.writeFile(path, '', 'utf8', () => {});
-    vowpalData.forEach(e => {
+    const pathToTrain = `./results/results-${dateInMillis}-vw-toTrain.txt`;
+    const pathWithScores = `./results/results-${dateInMillis}-vw-with-score.txt`;
+    fs.writeFile(pathToTrain, '', 'utf8', () => {});
+    fs.writeFile(pathWithScores, '', 'utf8', () => {});
+    vowpalData.forEach((e, i) => {
         const text = `${e._label} | length:${e.length} n_good:${e.n_good} n_bad:${e.n_bad}\n`;
-        fs.appendFile(path, text, 'utf8', () => {});
+        if (i % 10 === 0) {
+            fs.appendFile(pathToTrain, text, 'utf8', () => {});
+        } else {
+            fs.appendFile(pathWithScores, text, 'utf8', () => {});
+        }
     })
 
 }
